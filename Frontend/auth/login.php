@@ -10,7 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zuru Bank Login</title>
+    <title>ZuruBank-SA Login</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,7 +36,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <!-- Header (Fixed top bar for Zuru Bank branding) -->
     <header class="fixed top-0 left-0 w-full bg-gray-900 text-white p-4 text-center text-xl font-bold sharp-edge shadow-lg z-50">
-        ZURU BANK
+        ZURUBANK-SA
     </header>
 
     <!-- Login Card (Sharp edges) -->
