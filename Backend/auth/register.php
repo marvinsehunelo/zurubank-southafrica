@@ -63,7 +63,7 @@ function register($full_name, $email, $password_plain, $phone) {
                 'wallet_no' => null,
                 'wallet_id' => null,
                 'balance' => 0.00,
-                'currency' => 'BWP'
+                'currency' => 'ZAR'
             ]
         ];
 
