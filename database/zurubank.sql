@@ -66,7 +66,6 @@ CREATE TABLE audit_logs (
     geo_location VARCHAR(255)
 );
 
--- Table: account_freezes (Inferred, based on table list)
 CREATE TABLE account_freezes (
     freeze_id SERIAL PRIMARY KEY,
     account_id INTEGER NOT NULL,
@@ -276,41 +275,27 @@ CREATE TABLE instant_money_vouchers (
 
 ALTER TABLE accounts ADD CONSTRAINT fk_accounts_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
 
--- Sessions
 ALTER TABLE sessions ADD CONSTRAINT fk_sessions_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
 
--- Transactions (Note: If user_id/account_id default to 0, FK may fail unless 0 is a valid ID)
--- ALTER TABLE transactions ADD CONSTRAINT fk_transactions_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
--- ALTER TABLE transactions ADD CONSTRAINT fk_transactions_account_id FOREIGN KEY (account_id) REFERENCES accounts(account_id);
-
--- Account Freezes
 ALTER TABLE account_freezes ADD CONSTRAINT fk_freezes_account_id FOREIGN KEY (account_id) REFERENCES accounts(account_id);
 
--- Central Bank Link
 ALTER TABLE central_bank_link ADD CONSTRAINT fk_cbl_bank_id FOREIGN KEY (bank_id) REFERENCES swap_linked_banks(id);
 
--- External Banks
 ALTER TABLE external_banks ADD CONSTRAINT fk_eb_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
 
--- Instant Money Wallets
 ALTER TABLE instant_money_wallets ADD CONSTRAINT fk_imw_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
 
--- Instant Money Transactions
 ALTER TABLE instant_money_transactions ADD CONSTRAINT fk_imt_wallet_id FOREIGN KEY (wallet_id) REFERENCES instant_money_wallets(wallet_id);
 
--- Instant Money Transfers
 ALTER TABLE instant_money_transfers ADD CONSTRAINT fk_imtf_from_wallet_id FOREIGN KEY (from_wallet_id) REFERENCES instant_money_wallets(wallet_id);
 ALTER TABLE instant_money_transfers ADD CONSTRAINT fk_imtf_to_wallet_id FOREIGN KEY (to_wallet_id) REFERENCES instant_money_wallets(wallet_id);
 
--- Instant Money Vouchers
 ALTER TABLE instant_money_vouchers ADD CONSTRAINT fk_imv_created_by FOREIGN KEY (created_by) REFERENCES users(user_id);
 ALTER TABLE instant_money_vouchers ADD CONSTRAINT fk_imv_redeemed_by FOREIGN KEY (redeemed_by) REFERENCES users(user_id);
 
--- Add the soft-delete column
 ALTER TABLE transactions ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;
 ALTER TABLE swap_ledger ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;
 
--- Create the safety function
 CREATE OR REPLACE FUNCTION prevent_hard_delete()
 RETURNS trigger AS $$
 BEGIN
@@ -318,7 +303,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Apply triggers to ZuruBank tables
 CREATE TRIGGER no_delete_transactions
 BEFORE DELETE ON transactions
 FOR EACH ROW EXECUTE FUNCTION prevent_hard_delete();
@@ -418,6 +402,7 @@ ALTER TABLE users
   ADD COLUMN password_changed_at TIMESTAMP,
   ADD COLUMN failed_login_attempts INT DEFAULT 0,
   ADD COLUMN last_failed_login TIMESTAMP;
+
 CREATE TABLE kyc_profiles (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL UNIQUE,
@@ -480,18 +465,11 @@ ON CONFLICT DO NOTHING;
 ALTER TABLE instant_money_vouchers
   ADD COLUMN holding_account VARCHAR(64) DEFAULT 'VOUCHER-SUSPENSE';
   
-  -- Make atm_id and agent_id nullable
 ALTER TABLE cashouts ALTER COLUMN atm_id DROP NOT NULL;
 ALTER TABLE cashouts ADD COLUMN agent_id INTEGER;
 
--- Add source_bank_id if it doesn't exist
 ALTER TABLE cashouts ADD COLUMN IF NOT EXISTS source_bank_id INTEGER;
 
--- Check current structure of atm_dispenses
-\d atm_dispenses
-
--- If the table exists but missing currency, either:
--- Option 1: Drop and recreate (if no important data)
 DROP TABLE IF EXISTS atm_dispenses;
 
 CREATE TABLE atm_dispenses (
@@ -515,7 +493,6 @@ ADD COLUMN IF NOT EXISTS source_institution VARCHAR(100);
 ALTER TABLE instant_money_vouchers
 ADD COLUMN IF NOT EXISTS source_hold_reference VARCHAR(255);
 
--- Add missing reference column to instant_money_vouchers
 ALTER TABLE instant_money_vouchers 
 ADD COLUMN IF NOT EXISTS reference VARCHAR(255);
 
