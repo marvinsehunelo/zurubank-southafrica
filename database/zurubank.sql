@@ -1,10 +1,3 @@
-
-
----------------------------------------------------------------------------------------------------
--- 1. Core User & Account Tables
-----------------------------------------------------------------------------------------------------
-
--- Table: users
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
@@ -16,7 +9,7 @@ CREATE TABLE users (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: accounts
+
 CREATE TABLE accounts (
     account_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -28,7 +21,7 @@ CREATE TABLE accounts (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: sessions
+
 CREATE TABLE sessions (
     session_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -37,11 +30,7 @@ CREATE TABLE sessions (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-----------------------------------------------------------------------------------------------------
--- 2. Transaction & Audit Tables
-----------------------------------------------------------------------------------------------------
 
--- Table: transactions
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
     user_id INTEGER DEFAULT 0,
@@ -61,7 +50,6 @@ CREATE TABLE transactions (
     rounding_adjustment NUMERIC(15, 2) DEFAULT 0.00
 );
 
--- Table: audit_logs
 CREATE TABLE audit_logs (
     id SERIAL PRIMARY KEY,
     entity VARCHAR(255) NOT NULL,
@@ -88,11 +76,7 @@ CREATE TABLE account_freezes (
     end_time TIMESTAMP WITHOUT TIME ZONE
 );
 
-----------------------------------------------------------------------------------------------------
--- 3. Ledger & Bank Integration Tables
-----------------------------------------------------------------------------------------------------
 
--- Table: ledger_accounts
 CREATE TABLE ledger_accounts (
     id SERIAL PRIMARY KEY,
     account_name VARCHAR(255) NOT NULL,
@@ -103,7 +87,7 @@ CREATE TABLE ledger_accounts (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: swap_linked_banks
+
 CREATE TABLE swap_linked_banks (
     id SERIAL PRIMARY KEY,
     bank_code VARCHAR(50) NOT NULL UNIQUE,
@@ -114,7 +98,7 @@ CREATE TABLE swap_linked_banks (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: central_bank_link (Inferred, based on table list)
+
 CREATE TABLE central_bank_link (
     id SERIAL PRIMARY KEY,
     bank_id INTEGER NOT NULL,
@@ -130,11 +114,7 @@ CREATE TABLE external_banks (
     account_number VARCHAR(255) NOT NULL
 );
 
-----------------------------------------------------------------------------------------------------
--- 4. Swap System Tables
-----------------------------------------------------------------------------------------------------
 
--- Table: swap_internal_accounts
 CREATE TABLE swap_internal_accounts (
     id SERIAL PRIMARY KEY,
     account_code VARCHAR(255) NOT NULL UNIQUE,
@@ -145,7 +125,7 @@ CREATE TABLE swap_internal_accounts (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: swap_ledger
+
 CREATE TABLE swap_ledger (
     ledger_id SERIAL PRIMARY KEY,
     reference_id VARCHAR(255) NOT NULL,
@@ -158,7 +138,7 @@ CREATE TABLE swap_ledger (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: swap_ledgers
+
 CREATE TABLE swap_ledgers (
     ledger_id BIGSERIAL PRIMARY KEY,
     swap_reference VARCHAR(255) NOT NULL UNIQUE,
@@ -184,7 +164,7 @@ CREATE TABLE swap_ledgers (
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: swap_transactions
+
 CREATE TABLE swap_transactions (
     id SERIAL PRIMARY KEY,
     middleman_id INTEGER,
@@ -197,11 +177,7 @@ CREATE TABLE swap_transactions (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-----------------------------------------------------------------------------------------------------
--- 5. Middleman, Settings, and Other Tables
-----------------------------------------------------------------------------------------------------
 
--- Table: swap_middleman
 CREATE TABLE swap_middleman (
     id SERIAL PRIMARY KEY,
     account_number VARCHAR(255) NOT NULL UNIQUE,
@@ -211,7 +187,6 @@ CREATE TABLE swap_middleman (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: zurubank_middleman
 CREATE TABLE zurubank_middleman (
     id SERIAL PRIMARY KEY,
     account_number VARCHAR(255) NOT NULL UNIQUE,
@@ -219,7 +194,7 @@ CREATE TABLE zurubank_middleman (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: swap_audit
+
 CREATE TABLE swap_audit (
     id SERIAL PRIMARY KEY,
     action_type VARCHAR(50) NOT NULL,
@@ -229,7 +204,7 @@ CREATE TABLE swap_audit (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: swap_settings
+
 CREATE TABLE swap_settings (
     id SERIAL PRIMARY KEY,
     setting_key VARCHAR(255) NOT NULL UNIQUE,
@@ -237,18 +212,14 @@ CREATE TABLE swap_settings (
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: system_settings
+
 CREATE TABLE system_settings (
     setting_key VARCHAR(255) PRIMARY KEY,
     setting_value VARCHAR(255),
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-----------------------------------------------------------------------------------------------------
--- 6. Instant Money/Voucher Tables (Wallet System)
-----------------------------------------------------------------------------------------------------
 
--- Table: instant_money_wallets
 CREATE TABLE instant_money_wallets (
     wallet_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -259,7 +230,7 @@ CREATE TABLE instant_money_wallets (
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: instant_money_transactions
+
 CREATE TABLE instant_money_transactions (
     transaction_id SERIAL PRIMARY KEY,
     wallet_id INTEGER NOT NULL,
@@ -271,7 +242,7 @@ CREATE TABLE instant_money_transactions (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: instant_money_transfers
+
 CREATE TABLE instant_money_transfers (
     transfer_id SERIAL PRIMARY KEY,
     from_wallet_id INTEGER NOT NULL,
@@ -282,7 +253,7 @@ CREATE TABLE instant_money_transfers (
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Table: instant_money_vouchers
+
 CREATE TABLE instant_money_vouchers (
     voucher_id SERIAL PRIMARY KEY,
     amount NUMERIC(15, 2) NOT NULL,
@@ -302,11 +273,7 @@ CREATE TABLE instant_money_vouchers (
     redeemed_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-----------------------------------------------------------------------------------------------------
--- 7. Foreign Key Constraints (Recommended for Data Integrity)
-----------------------------------------------------------------------------------------------------
 
--- Accounts
 ALTER TABLE accounts ADD CONSTRAINT fk_accounts_user_id FOREIGN KEY (user_id) REFERENCES users(user_id);
 
 -- Sessions
@@ -360,11 +327,7 @@ CREATE TRIGGER no_delete_swap_ledger
 BEFORE DELETE ON swap_ledger
 FOR EACH ROW EXECUTE FUNCTION prevent_hard_delete();
 
---------------------------------------------------------------------------------
--- 1. Precision & Timestamp Updates (ZuruBank Specific Table Names)
---------------------------------------------------------------------------------
 
--- ZuruBank uses 'swap_ledger' instead of 'ledger_entries'
 ALTER TABLE swap_ledger ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT NOW();
 
 -- Updating Balance Precision to 4 decimal places (ECB/BoB Audit Standard)
@@ -374,11 +337,7 @@ ALTER TABLE ledger_accounts ALTER COLUMN balance TYPE NUMERIC(20,4);
 -- ZuruBank uses 'instant_money_wallets' instead of 'wallets'
 ALTER TABLE instant_money_wallets ALTER COLUMN balance TYPE NUMERIC(20,4);
 
---------------------------------------------------------------------------------
--- 2. Regulatory Control Tables (The "Inspector's Choice" Tables)
---------------------------------------------------------------------------------
 
--- Chart of Accounts: Mandatory to prove you aren't hiding "slush funds"
 CREATE TABLE chart_of_accounts (
     coa_code VARCHAR(20) PRIMARY KEY,
     coa_name VARCHAR(255) NOT NULL,
@@ -389,7 +348,6 @@ CREATE TABLE chart_of_accounts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Accounting Closures: Proves the Bank "balances its books" daily (EOD)
 CREATE TABLE accounting_closures (
     closure_date DATE PRIMARY KEY,
     closed_by INTEGER,
@@ -433,7 +391,7 @@ VALUES
     'SECURE_DELETE'
 );
 
--- Disaster Recovery: To prove the bank can recover from a crash/fire
+
 CREATE TABLE disaster_recovery_tests (
     test_id BIGSERIAL PRIMARY KEY,
     test_date DATE NOT NULL,
@@ -445,9 +403,7 @@ CREATE TABLE disaster_recovery_tests (
     signed_off_by INTEGER
 );
 
---------------------------------------------------------------------------------
--- 3. Initializing the Chart of Accounts (ZuruBank Setup)
---------------------------------------------------------------------------------
+
 
 INSERT INTO chart_of_accounts (coa_code, coa_name, coa_type, is_trust_account)
 VALUES 
@@ -548,7 +504,6 @@ CREATE TABLE atm_dispenses (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Option 2: Add currency column if table exists but missing it
 ALTER TABLE atm_dispenses ADD COLUMN IF NOT EXISTS currency VARCHAR(10) DEFAULT 'ZAR';
 
 ALTER TABLE instant_money_vouchers
@@ -564,15 +519,12 @@ ADD COLUMN IF NOT EXISTS source_hold_reference VARCHAR(255);
 ALTER TABLE instant_money_vouchers 
 ADD COLUMN IF NOT EXISTS reference VARCHAR(255);
 
--- Also ensure all other columns that might be missing
 ALTER TABLE instant_money_vouchers 
 ADD COLUMN IF NOT EXISTS source_institution VARCHAR(100),
 ADD COLUMN IF NOT EXISTS source_hold_reference VARCHAR(255),
 ADD COLUMN IF NOT EXISTS source_asset_type VARCHAR(50),
 ADD COLUMN IF NOT EXISTS code_hash VARCHAR(255);
--- =========================================================
--- FIX 1: Add missing columns to instant_money_vouchers
--- =========================================================
+
 ALTER TABLE instant_money_vouchers 
 ADD COLUMN IF NOT EXISTS reference VARCHAR(255),
 ADD COLUMN IF NOT EXISTS source_institution VARCHAR(100),
@@ -580,16 +532,11 @@ ADD COLUMN IF NOT EXISTS source_hold_reference VARCHAR(255),
 ADD COLUMN IF NOT EXISTS source_asset_type VARCHAR(50),
 ADD COLUMN IF NOT EXISTS code_hash VARCHAR(255);
 
--- =========================================================
--- FIX 2: Add missing columns to voucher_cashout_details
--- =========================================================
 ALTER TABLE voucher_cashout_details 
 ADD COLUMN IF NOT EXISTS reference VARCHAR(255),
 ADD COLUMN IF NOT EXISTS source_institution VARCHAR(100);
 
--- =========================================================
--- OPTIONAL: If voucher_cashout_details doesn't exist at all
--- =========================================================
+
 CREATE TABLE IF NOT EXISTS voucher_cashout_details (
     id SERIAL PRIMARY KEY,
     voucher_number VARCHAR(255) NOT NULL UNIQUE,
