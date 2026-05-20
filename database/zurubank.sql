@@ -23,7 +23,7 @@ CREATE TABLE accounts (
     account_number VARCHAR(255),
     account_type VARCHAR(50) DEFAULT 'checking',
     balance NUMERIC(15, 2) DEFAULT 0.00,
-    currency VARCHAR(10) DEFAULT 'USD',
+    currency VARCHAR(10) DEFAULT 'ZAR',
     status VARCHAR(50) DEFAULT 'active',
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -99,7 +99,7 @@ CREATE TABLE ledger_accounts (
     account_number VARCHAR(255) NOT NULL UNIQUE,
     account_type VARCHAR(50) NOT NULL,
     balance NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
-    currency VARCHAR(10) NOT NULL DEFAULT 'BWP',
+    currency VARCHAR(10) NOT NULL DEFAULT 'ZAR',
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -140,7 +140,7 @@ CREATE TABLE swap_internal_accounts (
     account_code VARCHAR(255) NOT NULL UNIQUE,
     purpose VARCHAR(50) NOT NULL,
     balance NUMERIC(15, 2) DEFAULT 0.00,
-    currency CHAR(3) DEFAULT 'BWP',
+    currency CHAR(3) DEFAULT 'ZAR',
     status VARCHAR(50) DEFAULT 'active',
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -153,7 +153,7 @@ CREATE TABLE swap_ledger (
     debit_account VARCHAR(255) NOT NULL,
     credit_account VARCHAR(255) NOT NULL,
     amount NUMERIC(15, 2) NOT NULL,
-    currency CHAR(3) DEFAULT 'BWP',
+    currency CHAR(3) DEFAULT 'ZAR',
     description TEXT,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -170,7 +170,7 @@ CREATE TABLE swap_ledgers (
     to_account VARCHAR(255),
     original_amount NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
     final_amount NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
-    currency_code VARCHAR(10) NOT NULL DEFAULT 'BWP',
+    currency_code VARCHAR(10) NOT NULL DEFAULT 'ZAR',
     swap_fee NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
     creation_fee NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
     admin_fee NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
@@ -253,7 +253,7 @@ CREATE TABLE instant_money_wallets (
     wallet_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     balance NUMERIC(15, 2) DEFAULT 0.00,
-    currency CHAR(3) DEFAULT 'BWP',
+    currency CHAR(3) DEFAULT 'ZAR',
     status VARCHAR(50) DEFAULT 'active',
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -286,7 +286,7 @@ CREATE TABLE instant_money_transfers (
 CREATE TABLE instant_money_vouchers (
     voucher_id SERIAL PRIMARY KEY,
     amount NUMERIC(15, 2) NOT NULL,
-    currency CHAR(3) DEFAULT 'BWP',
+    currency CHAR(3) DEFAULT 'ZAR',
     status VARCHAR(50) NOT NULL DEFAULT 'active',
     created_by INTEGER NOT NULL,
     recipient_phone VARCHAR(255),
@@ -398,12 +398,39 @@ CREATE TABLE accounting_closures (
     remarks TEXT
 );
 
--- Data Retention: Specifically for Bank of Botswana 7-10 year rules
 CREATE TABLE data_retention_policies (
     entity_name VARCHAR(100) PRIMARY KEY,
     retention_years INT NOT NULL,
-    legal_basis TEXT, -- e.g., 'Botswana Banking Act Section X'
-    last_reviewed DATE
+    legal_basis TEXT NOT NULL,
+    retention_trigger VARCHAR(150) DEFAULT 'from date of last transaction / end of relationship',
+    disposal_action VARCHAR(50) DEFAULT 'DELETE_OR_ANONYMIZE',
+    country VARCHAR(50) DEFAULT 'South Africa',
+    last_reviewed DATE DEFAULT CURRENT_DATE
+);
+
+INSERT INTO data_retention_policies 
+(entity_name, retention_years, legal_basis, retention_trigger, disposal_action)
+VALUES
+(
+    'financial_transactions',
+    7,
+    'South Africa: Companies Act / Tax Administration / VAT record retention; POPIA Section 14 permits retention where required by law',
+    'from financial year-end or last transaction date',
+    'ARCHIVE_THEN_DELETE'
+),
+(
+    'customer_personal_information',
+    5,
+    'South Africa: POPIA Section 14 - retain only as long as necessary unless required by law, contract, consent, or lawful business purpose',
+    'from end of customer relationship or last lawful processing purpose',
+    'DELETE_OR_ANONYMIZE'
+),
+(
+    'kyc_aml_records',
+    5,
+    'South Africa: FICA record retention; POPIA Section 14 allows legally required retention',
+    'from date of last transaction or end of business relationship',
+    'SECURE_DELETE'
 );
 
 -- Disaster Recovery: To prove the bank can recover from a crash/fire
@@ -516,13 +543,13 @@ CREATE TABLE atm_dispenses (
     atm_id VARCHAR(50) NOT NULL,
     trace_number VARCHAR(255) NOT NULL UNIQUE,
     amount NUMERIC(20,4) NOT NULL,
-    currency VARCHAR(10) DEFAULT 'BWP',
+    currency VARCHAR(10) DEFAULT 'ZAR',
     status VARCHAR(50) DEFAULT 'DISPENSED',
     created_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Option 2: Add currency column if table exists but missing it
-ALTER TABLE atm_dispenses ADD COLUMN IF NOT EXISTS currency VARCHAR(10) DEFAULT 'BWP';
+ALTER TABLE atm_dispenses ADD COLUMN IF NOT EXISTS currency VARCHAR(10) DEFAULT 'ZAR';
 
 ALTER TABLE instant_money_vouchers
 ADD COLUMN IF NOT EXISTS external_reference VARCHAR(255);
@@ -568,7 +595,7 @@ CREATE TABLE IF NOT EXISTS voucher_cashout_details (
     voucher_number VARCHAR(255) NOT NULL UNIQUE,
     auth_code VARCHAR(50) UNIQUE NOT NULL,
     amount NUMERIC(20,4) NOT NULL,
-    currency VARCHAR(10) DEFAULT 'BWP',
+    currency VARCHAR(10) DEFAULT 'ZAR',
     recipient_phone VARCHAR(50),
     instructions TEXT,
     expires_at TIMESTAMP NOT NULL,
