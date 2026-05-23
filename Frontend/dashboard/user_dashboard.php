@@ -110,7 +110,7 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; } /* Base font size re
     
     <div class="bg-white p-6 mb-8 sharp-edge shadow-xl border-t-4 border-t-primary">
         <p class="text-sm font-medium text-gray-500">Total Account Value</p>
-        <p class="mt-1 text-4xl font-extrabold text-gray-900 tracking-tight">P<?= number_format($summary['total_balance'],2) ?></p>
+        <p class="mt-1 text-4xl font-extrabold text-gray-900 tracking-tight">R<?= number_format($summary['total_balance'],2) ?></p>
         <div class="mt-3 text-gray-600 font-medium">
              <span class="inline-block mr-4 text-xs"><?= $summary['account_count'] ?> Accounts Linked</span> 
              <span class="text-xs text-gray-400">| Secure Access</span>
@@ -127,7 +127,7 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; } /* Base font size re
                     <?php foreach ($accounts as $acc): ?>
                         <div class="p-2 border-b border-gray-100 sharp-edge bg-gray-50 hover:bg-white transition-colors flex justify-between">
                             <p class="font-semibold text-gray-700"><?= htmlspecialchars(ucfirst($acc['account_type'])) ?> - <?= htmlspecialchars($acc['account_number']) ?></p>
-                            <p class="font-bold text-gray-900">P<?= number_format($acc['balance'],2) ?></p>
+                            <p class="font-bold text-gray-900">R<?= number_format($acc['balance'],2) ?></p>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -171,7 +171,7 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; } /* Base font size re
                                     <span class="text-xs text-gray-400 font-normal">(<?= htmlspecialchars($t['account_number']) ?>)</span>
                                 </div>
                                 <span class="<?= ($t['type'] ?? 'debit')==='credit'?'text-success':'text-danger' ?> font-bold">
-                                    <?= ($t['type'] ?? 'debit')==='credit'?'+':'-' ?>P<?= number_format($t['amount'] ?? 0,2) ?>
+                                    <?= ($t['type'] ?? 'debit')==='credit'?'+':'-' ?>R<?= number_format($t['amount'] ?? 0,2) ?>
                                 </span>
                             </li>
                             <?php endforeach; ?>
@@ -231,12 +231,12 @@ body { font-family: 'Inter', sans-serif; font-size: 14px; } /* Base font size re
             <!-- Recipient Phone -->
             <div class="mb-3">
                 <label class="block text-xs font-medium text-gray-700 mb-1">Recipient Phone</label>
-                <input type="text" name="recipient_phone" class="w-full input-field sharp-btn" placeholder="0917xxxxxxx" required>
+                <input type="text" name="recipient_phone" class="w-full input-field sharp-btn" placeholder="+2772xxxxxxx" required>
             </div>
 
             <!-- Amount -->
             <div class="mb-4">
-                <label class="block text-xs font-medium text-gray-700 mb-1">Amount (P)</label>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Amount (R)</label>
                 <input type="number" name="amount" class="w-full input-field sharp-btn" min="1" step="0.01" required>
             </div>
 
@@ -347,7 +347,7 @@ document.querySelectorAll('.transfer-type-btn').forEach(btn => {
                 <form id="ownTransferForm" class="transfer-form" action="../../Backend/transactions/own_transfer.php">
                     <div class="mb-3"><label class="block text-xs font-medium mb-1">From Account</label><select name="source" class="w-full input-field sharp-btn" required>${accountsOptions}</select></div>
                     <div class="mb-3"><label class="block text-xs font-medium mb-1">To Account</label><select name="target" class="w-full input-field sharp-btn" required>${accountsOptions}</select></div>
-                    <div class="mb-4"><label class="block text-xs font-medium mb-1">Amount (P)</label><input type="number" name="amount" class="w-full input-field sharp-btn" min="1" step="0.01" required></div>
+                    <div class="mb-4"><label class="block text-xs font-medium mb-1">Amount (R)</label><input type="number" name="amount" class="w-full input-field sharp-btn" min="1" step="0.01" required></div>
                     <button type="submit" class="w-full py-2 sharp-btn btn-primary font-semibold text-sm">TRANSFER FUNDS</button>
                 </form>`;
                 break;
@@ -357,7 +357,7 @@ document.querySelectorAll('.transfer-type-btn').forEach(btn => {
                 <form id="internalTransferForm" class="transfer-form" action="../../Backend/transactions/internal_transfer.php">
                     <div class="mb-3"><label class="block text-xs font-medium mb-1">Recipient Account Number</label><input type="text" name="target_account" class="w-full input-field sharp-btn" required></div>
                     <div class="mb-3"><label class="block text-xs font-medium mb-1">From Account</label><select name="source" class="w-full input-field sharp-btn" required>${accountsOptions}</select></div>
-                    <div class="mb-4"><label class="block text-xs font-medium mb-1">Amount (P)</label><input type="number" name="amount" class="w-full input-field sharp-btn" min="1" step="0.01" required></div>
+                    <div class="mb-4"><label class="block text-xs font-medium mb-1">Amount (R)</label><input type="number" name="amount" class="w-full input-field sharp-btn" min="1" step="0.01" required></div>
                     <button type="submit" class="w-full py-2 sharp-btn btn-primary font-semibold text-sm">TRANSFER FUNDS</button>
                 </form>`;
                 break;
@@ -368,7 +368,7 @@ document.querySelectorAll('.transfer-type-btn').forEach(btn => {
                     <div class="mb-3"><label class="block text-xs font-medium mb-1">Recipient Bank Name</label><input type="text" name="bank_name" class="w-full input-field sharp-btn" required></div>
                     <div class="mb-3"><label class="block text-xs font-medium mb-1">Recipient Account Number</label><input type="text" name="external_account" class="w-full input-field sharp-btn" required></div>
                     <div class="mb-3"><label class="block text-xs font-medium mb-1">From Account</label><select name="source" class="w-full input-field sharp-btn" required>${accountsOptions}</select></div>
-                    <div class="mb-4"><label class="block text-xs font-medium mb-1">Amount (P)</label><input type="number" name="amount" class="w-full input-field sharp-btn" min="1" step="0.01" required></div>
+                    <div class="mb-4"><label class="block text-xs font-medium mb-1">Amount (R)</label><input type="number" name="amount" class="w-full input-field sharp-btn" min="1" step="0.01" required></div>
                     <button type="submit" class="w-full py-2 sharp-btn btn-primary font-semibold text-sm">TRANSFER FUNDS</button>
                 </form>`;
                 break;
@@ -477,12 +477,12 @@ function loadVouchers(){
             return; 
         }
         
-        c.innerHTML='<table class="min-w-full text-xs border border-gray-200"><thead><tr class="bg-gray-100 text-gray-700 font-semibold"><th class="border px-3 py-1.5 text-left">Code</th><th class="border px-3 py-1.5 text-left">Phone</th><th class="border px-3 py-1.5 text-left">Amt</th><th class="border px-3 py-1.5 text-left">Swap</th><th class="border px-3 py-1.5 text-left">Swap Paid By</th><th class="border px-3 py-1.5 text-left">Status</th><th class="border px-3 py-1.5 text-left">Action</th></tr></thead><tbody>'
+        c.innerHTML='<table class="min-w-full text-xs border border-gray-200"><thead><tr class="bg-gray-100 text-gray-700 font-semibold"><th class="border px-3 py-1.5 text-left">Code</th><th class="border px-3 py-1.5 text-left">Phone</th><th class="border px-3 py-1.5 text-left">Amt</th><th class="border px-3 py-1.5 text-left">Swap</th><th class="border px-3 py-1.5 text-left">Swap Paid By</th><th class="border px-3 py-1.5 text-left">Status</th><th class="border px-3 py-1.5 text-left">Action</th><tr></thead><tbody>'
           + res.vouchers.map(v=>`
             <tr class="hover:bg-gray-50">
               <td class="border px-3 py-1.5 text-gray-800 font-medium">${v.voucher_number}</td>
               <td class="border px-3 py-1.5">${v.recipient_phone ?? 'N/A'}</td>
-              <td class="border px-3 py-1.5 font-bold">P${v.amount}</td>
+              <td class="border px-3 py-1.5 font-bold">R${v.amount}</td>
               <td class="border px-3 py-1.5">${v.swap_enabled ? 'Yes' : 'No'}</td>
               <td class="border px-3 py-1.5">${v.swap_fee_paid_by ?? '—'}</td>
               <td class="border px-3 py-1.5"><span class="font-bold ${v.status==='active'?'text-success':'text-gray-500'}">${v.status}</span></td>
