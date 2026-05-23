@@ -32,12 +32,12 @@ function register($full_name, $email, $password_plain, $phone) {
         $pdo->beginTransaction();
 
         // Insert user
-        $stmt = $pdo->prepare("
-            INSERT INTO users (full_name, email, phone, password, role, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$full_name, $email, $phone, $password, $role, $created_at]);
-        $user_id = $pdo->lastInsertId();
+        INSERT INTO users (full_name, email, phone, password_hash, role, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
+    
+    $stmt->execute([$full_name, $email, $phone, $password_hash, $role, $created_at]);
+    $user_id = $pdo->lastInsertId();
 
         // Create accounts
         $savingsAcc = "SAV" . str_pad($user_id, 8, "0", STR_PAD_LEFT);
