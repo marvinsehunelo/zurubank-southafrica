@@ -58,7 +58,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const payload = { full_name, email, phone, password };
 
   try {
-    const res = await fetch('https://cazacom-production.up.railway.app/backend/auth/register.php', {
+    const res = await fetch('https://zurubank-southafrica-production.up.railway.app/backend/auth/register.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
