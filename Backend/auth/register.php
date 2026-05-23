@@ -17,7 +17,7 @@ require_once __DIR__ . "/../config/db.php";
 function register($full_name, $email, $password_plain, $phone) {
     global $pdo;
 
-    $password = password_hash($password_plain, PASSWORD_BCRYPT);
+    $password_hash = password_hash($password_plain, PASSWORD_BCRYPT);
     $role = "customer";
     $created_at = date("Y-m-d H:i:s");
 
@@ -31,13 +31,13 @@ function register($full_name, $email, $password_plain, $phone) {
 
         $pdo->beginTransaction();
 
-        // Insert user
-        INSERT INTO users (full_name, email, phone, password_hash, role, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
-    
-    $stmt->execute([$full_name, $email, $phone, $password_hash, $role, $created_at]);
-    $user_id = $pdo->lastInsertId();
+        // Insert user - FIXED VERSION
+        $stmt = $pdo->prepare("
+            INSERT INTO users (full_name, email, phone, password_hash, role, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([$full_name, $email, $phone, $password_hash, $role, $created_at]);
+        $user_id = $pdo->lastInsertId();
 
         // Create accounts
         $savingsAcc = "SAV" . str_pad($user_id, 8, "0", STR_PAD_LEFT);
@@ -97,4 +97,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 // ===== HANDLE OTHER REQUESTS =====
 http_response_code(405);
 echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-
+?>
