@@ -44,7 +44,7 @@ try {
     $js_account_options = '';
     foreach ($accounts as $acc) {
         $js_account_options .= '<option value="'.$acc['account_id'].'">'
-            .htmlspecialchars(ucfirst($acc['account_type'])).' - '.$acc['account_number'].' (P'.number_format($acc['balance'],2).')</option>';
+            .htmlspecialchars(ucfirst($acc['account_type'])).' - '.$acc['account_number'].' (R'.number_format($acc['balance'],2).')</option>';
     }
 
 } catch (PDOException $e) {
