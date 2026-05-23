@@ -57,14 +57,14 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     // Build JSON payload instead of FormData
     const payload = { full_name, email, phone, password };
 
-    try {
-        const res = await fetch('http://localhost/zurubank/Backend/auth/register.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+  try {
+    const res = await fetch('https://cazacom-production.up.railway.app/backend/auth/register.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    });
 
         // Check if fetch succeeded
         if(!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
